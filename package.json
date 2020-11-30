@@ -1,0 +1,56 @@
+{
+  "version": "0.1.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=12"
+  },
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "tsdx test",
+    "lint": "tsdx lint",
+    "prepare": "tsdx build",
+    "size": "size-limit",
+    "analyze": "size-limit --why"
+  },
+  "peerDependencies": {},
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsdx lint"
+    }
+  },
+  "name": "sourced-repo-arc-dynamo",
+  "author": "wolfejw86@gmail.com",
+  "module": "dist/sourced-repo-arc-dynamo.esm.js",
+  "size-limit": [
+    {
+      "path": "dist/sourced-repo-arc-dynamo.cjs.production.min.js",
+      "limit": "10 KB"
+    },
+    {
+      "path": "dist/sourced-repo-arc-dynamo.esm.js",
+      "limit": "10 KB"
+    }
+  ],
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "^4.9.0",
+    "@types/debug": "^4.1.5",
+    "husky": "^4.3.0",
+    "size-limit": "^4.9.0",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.0.3",
+    "typescript": "^4.1.2"
+  },
+  "dependencies": {
+    "@architect/functions": "^3.13.8",
+    "aws-sdk": "^2.799.0",
+    "debug": "^4.3.1",
+    "sourced": "^2.0.8"
+  }
+}
