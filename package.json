@@ -1,5 +1,5 @@
 {
-  "version": "0.1.2",
+  "version": "0.1.3",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -33,6 +33,9 @@
   },
   "name": "sourced-repo-arc-dynamo",
   "author": "wolfejw86@gmail.com",
+  "repository": {
+    "url": "https://github.com/wolfejw86/sourced-repo-arc-dynamo"
+  },
   "module": "dist/sourced-repo-arc-dynamo.esm.js",
   "size-limit": [
     {
