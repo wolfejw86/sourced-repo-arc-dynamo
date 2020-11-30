@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -19,6 +19,12 @@
     "size": "size-limit",
     "analyze": "size-limit --why"
   },
+  "keywords": [
+    "sourced",
+    "eventsourcing",
+    "eventsource",
+    "event-source"
+  ],
   "peerDependencies": {},
   "husky": {
     "hooks": {
