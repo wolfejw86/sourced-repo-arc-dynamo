@@ -17,7 +17,7 @@ Because building with event sourced models is easy and really robust.
 
 - [ ] implement full repo API as shown in `sourced-repo-mongo`
 - [ ] document the API thoroughly
-- [ ] provide alternate impl to not be dependent on Arc
+- [ ] provide alternate impl to not be dependent on Arc - possibly remove dependency on @architect/functions entirely
 - [ ] show example project of heavy pattern leveraging to make it obvious how to use this package
 - [ ] finish test coverage
 - [ ] add integration tests against dynamodb in a docker container
