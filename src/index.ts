@@ -3,7 +3,9 @@ import debug from 'debug';
 
 const log = debug('sourced-repo-arc-dynamo');
 
-interface TConstructor<TSourcedEntity> { new(snapshot?: any, events?: any[]): TSourcedEntity };
+interface TConstructor<TSourcedEntity> {
+  new (snapshot?: any, events?: any[]): TSourcedEntity;
+}
 
 interface SourcedEntity {
   id: string;
@@ -25,7 +27,7 @@ export class Repository<T extends SourcedEntity> {
   private eventTableName: string;
   private events: any;
   private snapshots: any;
-  private options: RepositoryOptions
+  private options: RepositoryOptions;
   private entityName: string;
 
   constructor(entityType: TConstructor<T>, options: RepositoryOptions = {}) {
@@ -39,12 +41,18 @@ export class Repository<T extends SourcedEntity> {
 
   async get(id: string) {
     const snapshot = await this.getLatestSnapshotById(id);
-    const events = await this.getEvents(id, snapshot && snapshot.version || 0);
+    const events = await this.getEvents(
+      id,
+      (snapshot && snapshot.version) || 0
+    );
 
     return new this.entityConstructorRef(snapshot, events);
   }
 
-  async commit(entity: T, options: { forceSnapshot: boolean; } = { forceSnapshot: false }) {
+  async commit(
+    entity: T,
+    options: { forceSnapshot: boolean } = { forceSnapshot: false }
+  ) {
     log('committing %s for id %s', this.entityConstructorRef.name, entity.id);
 
     try {
@@ -52,26 +60,36 @@ export class Repository<T extends SourcedEntity> {
       await this.commitSnapshots(entity, options);
       this.emitEvents(entity);
     } catch (error) {
-      log('error committing %s for id %s', this.entityConstructorRef.name, entity.id);
+      log(
+        'error committing %s for id %s',
+        this.entityConstructorRef.name,
+        entity.id
+      );
       throw error;
     }
   }
 
   /**
- * gets latest snapshot using an index
- */
-  private async getLatestSnapshotByIndex(key: string, keyValue: string, indexName: string = key) {
-    const record = await this.snapshots.query({
-      IndexName: indexName + '-index',
-      KeyConditionExpression: key + " = :keyvalue",
-      ExpressionAttributeValues: {
-        ":keyvalue": keyValue
-      },
-      ScanIndexForward: false,
-    }).catch((err: any) => {
-      log(err);
-      return {};
-    });
+   * gets latest snapshot using an index
+   */
+  private async getLatestSnapshotByIndex(
+    key: string,
+    keyValue: string,
+    indexName: string = key
+  ) {
+    const record = await this.snapshots
+      .query({
+        IndexName: indexName + '-index',
+        KeyConditionExpression: key + ' = :keyvalue',
+        ExpressionAttributeValues: {
+          ':keyvalue': keyValue,
+        },
+        ScanIndexForward: false,
+      })
+      .catch((err: any) => {
+        log(err);
+        return {};
+      });
 
     if (!record.Items[0]) {
       return null;
@@ -86,7 +104,7 @@ export class Repository<T extends SourcedEntity> {
       ExpressionAttributeValues: {
         ':id': id,
         ':version': latestVersion,
-      }
+      },
     });
 
     return latestEvents.Items;
@@ -96,29 +114,35 @@ export class Repository<T extends SourcedEntity> {
    * gets latest snapshot by id
    */
   private async getLatestSnapshotById(id: string) {
-    return this.snapshots.query({
-      KeyConditionExpression: 'id = :id',
-      ExpressionAttributeValues: {
-        ':id': id,
-      },
-      Limit: 5,
-      ScanIndexForward: false,
-    }).then((result: any) => {
-      return result.Items[0] || null
-    });
+    return this.snapshots
+      .query({
+        KeyConditionExpression: 'id = :id',
+        ExpressionAttributeValues: {
+          ':id': id,
+        },
+        Limit: 5,
+        ScanIndexForward: false,
+      })
+      .then((result: any) => {
+        return result.Items[0] || null;
+      });
   }
 
   /**
    * requires there to already be a snapshot to use this method
    */
   async getByIndex(key: string, keyValue: string, indexName: string = key) {
-    const snapshot = await this.getLatestSnapshotByIndex(key, keyValue, indexName);
+    const snapshot = await this.getLatestSnapshotByIndex(
+      key,
+      keyValue,
+      indexName
+    );
 
     if (!snapshot) {
       return null;
     }
 
-    const latestVersion = snapshot && snapshot.version || 0;
+    const latestVersion = (snapshot && snapshot.version) || 0;
 
     const events = await this.getEvents(snapshot.id, latestVersion);
 
@@ -131,7 +155,9 @@ export class Repository<T extends SourcedEntity> {
     }
 
     if (!entity.id) {
-      new Error(`Cannot commit an entity of type [${this.entityConstructorRef.name}] without an [id] property`);
+      new Error(
+        `Cannot commit an entity of type [${this.entityConstructorRef.name}] without an [id] property`
+      );
     }
 
     const events = entity.newEvents;
@@ -148,12 +174,18 @@ export class Repository<T extends SourcedEntity> {
   }
 
   private async commitSnapshots(entity: T, options = { forceSnapshot: false }) {
-    if (options.forceSnapshot || entity.version >= entity.snapshotVersion + this.snapshotFrequency) {
+    if (
+      options.forceSnapshot ||
+      entity.version >= entity.snapshotVersion + this.snapshotFrequency
+    ) {
       const snapshot = entity.snapshot();
 
       log('Inserting snapshot for %s', this.entityConstructorRef.name);
       await this.snapshots.put(snapshot);
-      log('Successfully committed snapshot for %s', this.entityConstructorRef.name);
+      log(
+        'Successfully committed snapshot for %s',
+        this.entityConstructorRef.name
+      );
     }
   }
 
@@ -167,15 +199,20 @@ export class Repository<T extends SourcedEntity> {
   }
 
   init() {
-    return arc.tables().then((data: any) => {
-      this.events = data[this.eventTableName.toLowerCase()];
-      this.snapshots = data[this.snapshotTableName.toLowerCase()];
+    return arc
+      .tables()
+      .then((data: any) => {
+        this.events = data[this.eventTableName.toLowerCase()];
+        this.snapshots = data[this.snapshotTableName.toLowerCase()];
 
-      log(`initialized ${this.entityName} entity store`);
-    }).catch((error: any) => {
-      log(`Error initializing ${this.entityName} entity store - Error: ${error}`);
-      throw error;
-    });
+        log(`initialized ${this.entityName} entity store`);
+      })
+      .catch((error: any) => {
+        log(
+          `Error initializing ${this.entityName} entity store - Error: ${error}`
+        );
+        throw error;
+      });
   }
 }
 
