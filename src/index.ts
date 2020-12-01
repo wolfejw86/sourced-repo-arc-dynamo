@@ -1,26 +1,18 @@
 import arc from '@architect/functions';
 import debug from 'debug';
+import { Entity } from 'sourced';
 
 const log = debug('sourced-repo-arc-dynamo');
 
-interface TConstructor<TSourcedEntity> {
+interface TConstructor<TSourcedEntity extends Entity> {
   new (snapshot?: any, events?: any[]): TSourcedEntity;
-}
-
-interface SourcedEntity {
-  id: string;
-  eventsToEmit: any[];
-  newEvents: any[];
-  version: number;
-  snapshotVersion: number;
-  snapshot: () => any;
 }
 
 interface RepositoryOptions {
   snapshotFrequency?: number;
 }
 
-export class Repository<T extends SourcedEntity> {
+export class Repository<T extends Entity> {
   private entityConstructorRef: TConstructor<T>;
   private snapshotFrequency: number;
   private snapshotTableName: string;

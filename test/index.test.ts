@@ -1,5 +1,5 @@
 import { Repository } from '../src/index';
-const Entity = require('sourced/dist/entity').default;
+import { Entity } from 'sourced';
 
 const ArcTablesDynamoMock = {
   testentityevents: {
@@ -42,12 +42,16 @@ jest.mock('@architect/functions', () => ({
   tables: jest.fn(async () => ArcTablesDynamoMock),
 }));
 
-class TestEntity extends Entity {
+class TestEntity extends Entity<TestEntity, { total: number }> {
+  total: number;
+
   constructor(snapshot?: any, events?: any) {
     super();
 
     this.total = 0;
-    this.id = null;
+    this.id = '';
+
+    this.rehydrate(snapshot, events);
   }
 
   init() {
@@ -83,7 +87,7 @@ describe('Repository tests', () => {
     testEntity.addOne();
     testEntity.addOne();
 
-    const repo = new Repository(TestEntity as any);
+    const repo = new Repository(TestEntity);
 
     const oneAdded = new Promise(resolve =>
       testEntity.once('oneAdded', resolve)
