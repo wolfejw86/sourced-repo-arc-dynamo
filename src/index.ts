@@ -80,7 +80,7 @@ export class Repository<T extends Entity> {
       })
       .catch((err: any) => {
         log(err);
-        return {};
+        return { Items: [] };
       });
 
     if (!record.Items[0]) {

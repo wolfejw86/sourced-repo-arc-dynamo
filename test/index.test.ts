@@ -76,7 +76,7 @@ describe('Repository tests', () => {
   });
 
   it('should create a Repository', () => {
-    const repo = new Repository(TestEntity as any);
+    const repo = new Repository(TestEntity);
 
     expect(repo).toBeInstanceOf(Repository);
   });
@@ -118,14 +118,14 @@ describe('Repository tests', () => {
     testEntity.addOne();
     testEntity.addOne();
 
-    const repo = new Repository(TestEntity as any);
+    const repo = new Repository(TestEntity);
 
     const oneAdded = new Promise(resolve =>
       testEntity.once('oneAdded', resolve)
     );
 
     await repo.init();
-    await repo.commit(testEntity as any);
+    await repo.commit(testEntity);
 
     await oneAdded;
 
@@ -141,7 +141,27 @@ describe('Repository tests', () => {
     expect(ArcTablesDynamoMock.testentitysnapshots.put).not.toHaveBeenCalled();
   });
 
-  it.todo('should fire enqueued events after successful commit');
+  it('should fire enqueued events after successful commit', async () => {
+    const testEntity = new TestEntity();
+    const repo = new Repository(TestEntity);
+    await repo.init();
+
+    testEntity.init();
+    testEntity.addOne();
+    testEntity.addOne();
+
+    let emitted = 0;
+
+    testEntity.on('oneAdded', () => {
+      emitted++;
+    });
+
+    expect(testEntity.eventsToEmit.length).toBe(2);
+
+    await repo.commit(testEntity);
+
+    expect(emitted).toBe(2);
+  });
   it.todo('should be able to retrieve entity that only has events');
   it.todo(
     'should retrieve latest snapshot and events for entity and merge together into model'
