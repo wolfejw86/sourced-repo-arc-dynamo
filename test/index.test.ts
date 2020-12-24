@@ -1,32 +1,38 @@
 import { Repository } from '../src/index';
 import { Entity } from 'sourced';
 
+const mockSavedTestEntityEvents = {
+  Items: [
+    {
+      method: 'init',
+      data: undefined,
+      timestamp: 1606703172298,
+      version: 1,
+    },
+    {
+      method: 'addOne',
+      data: undefined,
+      timestamp: 1606703172298,
+      version: 2,
+    },
+    {
+      method: 'addOne',
+      data: undefined,
+      timestamp: 1606703172298,
+      version: 3,
+    },
+  ],
+};
+
 const ArcTablesDynamoMock = {
   testentityevents: {
     put: jest.fn().mockResolvedValue(undefined),
-    get: jest.fn().mockResolvedValue([
-      {
-        method: 'init',
-        data: undefined,
-        timestamp: 1606703172298,
-        version: 1,
-      },
-      {
-        method: 'addOne',
-        data: undefined,
-        timestamp: 1606703172298,
-        version: 2,
-      },
-      {
-        method: 'addOne',
-        data: undefined,
-        timestamp: 1606703172298,
-        version: 3,
-      },
-    ]),
+    get: jest.fn().mockResolvedValue(mockSavedTestEntityEvents),
+    query: jest.fn().mockResolvedValue(mockSavedTestEntityEvents),
   },
   testentitysnapshots: {
     put: jest.fn().mockResolvedValue(undefined),
+    query: jest.fn().mockResolvedValue({ Items: [] }),
     get: jest.fn().mockResolvedValue({
       _eventsCount: 0,
       snapshotVersion: 3,
@@ -162,7 +168,16 @@ describe('Repository tests', () => {
 
     expect(emitted).toBe(2);
   });
-  it.todo('should be able to retrieve entity that only has events');
+
+  it('should be able to retrieve entity that only has events', async () => {
+    const repo = new Repository(TestEntity);
+    await repo.init();
+
+    const testEntity = await repo.get('test-id');
+
+    expect(testEntity.id).toBe('test-id');
+    expect(testEntity.total).toBe(2);
+  });
   it.todo(
     'should retrieve latest snapshot and events for entity and merge together into model'
   );
