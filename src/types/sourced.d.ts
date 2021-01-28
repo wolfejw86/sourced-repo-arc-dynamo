@@ -12,7 +12,7 @@ declare module 'sourced' {
     constructor(message?: string, constructor?: any);
   }
 
-  interface SnapshotBase {
+  export interface SnapshotBase {
     _eventsCount: number;
     snapshotVersion: number;
     timestamp: number;
@@ -24,10 +24,13 @@ declare module 'sourced' {
    * Add subclass as T for stronger typings for things like "digest"
    * - TODO add better way to type snapshots, for now TSnapshot will work
    */
-  export class Entity<T = any, TSnapshot = any> extends EventEmitter {
+  export class Entity<
+    T = any,
+    TSnapshot extends SnapshotBase = any
+  > extends EventEmitter {
     public id: string;
 
-    public static digestMethod(type: string, fn: Function): any;
+    public static digestMethod(type: string, fn: (...args: any[]) => any): any;
 
     public eventsToEmit: any[];
 
@@ -49,7 +52,7 @@ declare module 'sourced' {
 
     public digest<TData>(method: keyof T, data?: TData): void;
 
-    public merge(snapshot: TSnapshot & SnapshotBase): this;
+    public merge(snapshot: TSnapshot): this;
 
     public mergeProperty(name: keyof T, value: any): void;
 
@@ -57,14 +60,14 @@ declare module 'sourced' {
 
     public replay<TEvent>(events: TEvent[]): void;
 
-    public snapshot(): TSnapshot & SnapshotBase;
+    public snapshot(): TSnapshot;
 
-    private trimSnapshot(snapshot: TSnapshot & SnapshotBase): TSnapshot;
+    private trimSnapshot(snapshot: TSnapshot): TSnapshot;
 
     public static mergeProperty(
       ctor: new (snapshot?: any, events?: any[]) => Entity,
       name: string,
-      fn: Function
+      fn: (...args: any[]) => any
     ): void;
   }
 }
