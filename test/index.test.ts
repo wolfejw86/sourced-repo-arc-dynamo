@@ -1,5 +1,5 @@
 import { Repository } from '../src/index';
-import { Entity } from 'sourced';
+import { Entity, SnapshotBase } from 'sourced';
 
 const mockSavedTestEntityEvents = {
   Items: [
@@ -48,7 +48,11 @@ jest.mock('@architect/functions', () => ({
   tables: jest.fn(async () => ArcTablesDynamoMock),
 }));
 
-class TestEntity extends Entity<TestEntity, { total: number }> {
+interface ITestSnapshot extends SnapshotBase {
+  total: number;
+}
+
+class TestEntity extends Entity<TestEntity, ITestSnapshot> {
   total: number;
 
   constructor(snapshot?: any, events?: any) {
